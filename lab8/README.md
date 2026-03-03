@@ -60,18 +60,18 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 ### 2A - Ohmic Behaviour
 #### 1st set of measurements (Ines):
     • The setup was kept the same as in experiment 1B. 
-    | DAC (V)   | Current (mA) |
-    | -------- | ------- |
-    | 0.1  |   0.01 |
-    | 0.4 |   0.04   |
-    | 0.7  |  0.08  |
-    | 1.0 |  0.10    |
-    | 1.3  |  0.13  |
-    | 1.6 |   0.16   |
-    | 1.9 |  0.195  |
-    | 2.2  | 0.22   |
-    | 2.5 |   0.26   |
-    | 2.9  |  0.29  |
-    | 3.3 |    0.33  |
+| DAC (V) | Current (mA) |
+| :--- | :--- |
+| 0.1 | 0.01 |
+| 0.4 | 0.04 |
+| 0.7 | 0.08 |
+| 1.0 | 0.10 |
+| 1.3 | 0.13 |
+| 1.6 | 0.16 |
+| 1.9 | 0.195 |
+| 2.2 | 0.22 |
+| 2.5 | 0.26 |
+| 2.9 | 0.29 |
+| 3.3 | 0.33 |
     DAC values were recorded using the iOLab.
 #### 2nd set of measurements (Arjun):
