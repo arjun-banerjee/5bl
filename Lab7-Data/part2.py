@@ -78,3 +78,10 @@ plt.show()
 
 k_wmean, k_wsigma = weighted_mean(ks, sigma_ks)
 print(f"\nWeighted mean k: {k_wmean:.3f} ± {k_wsigma:.3f} N/m")
+
+###damped
+def damped(t,A,beta,w,phi,c):
+    return A*np.exp(-beta*t)*(beta**2 - w**2)*np.cos(w*t + phi) + 2*beta*w*np.sin(w*t + phi)+ c
+
+def damped_fit(df):
+    
