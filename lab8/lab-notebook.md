@@ -8,7 +8,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 #### 2nd measurement (Arjun): 
     • Picked a 4.7kohm resistor. 
     • Measured the resistance to be 4.684kohms.
-![Setup0](lab8/setup0.heic)
+![Setup0](5bl/lab8/setup0.heic)
 
 ## Part 1 - iOLab & DMM
 ### 1A - Resistors in series/Voltage Divider
