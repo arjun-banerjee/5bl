@@ -8,7 +8,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 #### 2nd measurement (Arjun): 
     • Picked a 4.7kohm resistor. 
     • Measured the resistance to be 4.684kohms.
-![Experimental Setup 0 Image](lab8/images/setup0.jpeg)
+![Experimental Setup 0 Image](images/setup0.jpeg)
 
 ## Part 1 - iOLab & DMM
 ### 1A - Resistors in series/Voltage Divider
@@ -31,7 +31,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
     • The data was saved.
 #### 2nd measurement (Arjun):
     • Measurement went as expected and the data was saved.
-![Experimental Setup 1a i Image](lab8/images/setup1ai.jpeg)
+![Experimental Setup 1a i Image](images/setup1ai.jpeg)
 ### Using DMM to measure voltage
 #### 1st measurement (Ines):
     • The circuit was unplugged and the DMM was connected to iOLab DAC and GRND. 
@@ -40,7 +40,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
     • The measured voltage was 2.0225 (fluctation between 2.022 and 2.023).
 #### 2nd measurement (Arjun):
     • Measured the DAC across the ioLab was 2.0225 (fluctation between 2.022 and 2.023). 
-![Experimental Setup 1a ii Image](lab8/images/setup1aii.jpeg)
+![Experimental Setup 1a ii Image](images/setup1aii.jpeg)
 ### 1B - Measuring Current
 #### 1st measurement (Ines):
     • Circuit was set up.
@@ -53,7 +53,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
     • Data was recorded and saved to the repository.
 #### In class self-check: 
     • I = V/R = 0.142+0.049mV/1ohm = 0.191mA.
-![Experimental Setup 1b Image](lab8/images/setup1b.jpeg)
+![Experimental Setup 1b Image](images/setup1b.jpeg)
 ### Using DMM to measure current
 #### 1st measurement (Ines):
     • Current was 0.0205mA (fluctuated between 0.02mA and 0.021mA)
@@ -79,5 +79,5 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 | 3.3 | 0.33 |
     DAC values were recorded using the iOLab.
 #### 2nd set of measurements (Arjun):
-![Experimental Setup 2a Image](lab8/images/setup2a.jpeg)
+![Experimental Setup 2a Image](images/setup2a.jpeg)
 Note: Arjun was not present in person for the data collection. His dataset was collected via Zoom, where he visually read metres where possible. He assisted in the circuitry setup.
