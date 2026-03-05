@@ -64,6 +64,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 ### 2A - Ohmic Behaviour
 #### 1st set of measurements (Ines):
     • The setup was kept the same as in experiment 1B. 
+    • DAC values were recorded using the iOLab.
 | DAC (V) | Current (mA) |
 | :--- | :--- |
 | 0.1 | 0.01 |
@@ -77,7 +78,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 | 2.5 | 0.26 |
 | 2.9 | 0.29 |
 | 3.3 | 0.33 |
- • DAC values were recorded using the iOLab.
+
 #### 2nd set of measurements (Arjun):
 | DAC (V) | Current (mA) |
 | :--- | :--- |
@@ -127,6 +128,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 | 3.0 | 0.13 |
 | 3.2 |0.15 |
 | 3.3 | 0.16 |
+
 ![Experimental Setup 2b Image](images/setup2b.jpeg)
 ### 3A - Kirchoff's Laws
 • The battery pack was measured to be 4.379V using the DMM. The battery pack could not be deconstructed into the individual batteries. 
@@ -135,6 +137,7 @@ Put in the black and red banana test leads in the relevant part of the DMM.
 • The sequence of measurements was current across middle resistory (I3), bottom left resistor (I1), bottom right resistor (I2). 
 #### 2nd set of measurements (Arjun):
 • The sequence of measurements was current across middle resistory (I3), bottom left resistor (I1), bottom right resistor (I2). 
+
 ![Experimental Setup 3 Image](images/setup3.jpeg)
 
 Note: Arjun was not present in person for the data collection. His dataset was collected via Zoom, where he visually read metres where possible. He assisted in the circuitry setup.
