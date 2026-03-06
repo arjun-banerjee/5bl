@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy.signal import find_peaks
 
 #functions
 def retrieve(files):
@@ -40,9 +41,22 @@ def damped_fit(df):
     popt, pcov = curve_fit(damped, t, a, p0=guesses, maxfev=10000)
     return t, a, popt, pcov
 
+def constant_friction_fit(df,threshold=0.005):
+    t_pos = df["Time (s)"].to_numpy(dtype=float)
+    pos = df["rᵧ (m)"].to_numpy(dtype=float)
+    tail_idx = int(len(pos) * 0.9)
+    y_eq = np.mean(pos[tail_idx:])
+    peaks, _ = find_peaks(pos, prominence=threshold)
+    valleys, _ = find_peaks(-pos, prominence=threshold)
+    all_turning_indices = np.sort(np.concatenate((peaks, valleys)))
+    amplitudes = np.abs(pos[all_turning_indices] - y_eq)
+    n_values = np.arange(len(amplitudes))
+    popt_cf = np.polyfit(n_values, amplitudes, 1) 
+    return t_pos, pos, n_values, amplitudes, popt_cf, all_turning_indices, y_eq
+
 #setup
 m=0.2035
-filenames = ["3.1.csv", "3.2.csv", "3.3.csv", "3.4.csv", "3.5.csv", "3.6.csv"]
+filenames = ["3.1_cleaned.csv", "3.2_cleaned.csv", "3.3_cleaned.csv", "3.4_cleaned.csv", "3.5_cleaned.csv", "3.6_cleaned.csv"]
 dfs, base_dir = retrieve(filenames)
 
 #Force grid for the datasets
@@ -51,7 +65,7 @@ for ax, df, fname in zip(axes.flatten(), dfs, filenames):
     ax.plot(df["Time (s)"], df["Fᵧ (N)"], color="mediumblue", linewidth=1.5)
     ax.set_title(fname, fontsize=12)
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("Ay (m/s²)")
+    ax.set_ylabel("Fy (m/s²)")
     ax.grid(True, linestyle="--", alpha=0.6)
 fig.suptitle("Force vs. Time", fontsize=16, fontweight="bold")
 plt.savefig(os.path.join(base_dir, "3_force_grid.png"), dpi=300)
@@ -126,4 +140,38 @@ ax_res_d.grid(True, linestyle="--", alpha=0.6)
 
 plt.tight_layout()
 plt.savefig(os.path.join(base_dir, "3.2_damped_fit_and_residuals.png"), dpi=300)
+plt.show()
+
+#Fit data to constant friction (3)
+t_pos, pos, n_values, amplitudes, popt_cf, turning_indices, y_eq = constant_friction_fit(df_32)
+m_slope, b_intercept = popt_cf
+fit_amplitudes = m_slope * n_values + b_intercept
+residuals_cf = amplitudes - fit_amplitudes
+
+fig5, (ax_pos, ax_amp, ax_res) = plt.subplots(3, 1, figsize=(10, 12), constrained_layout=True)
+
+ax_pos.plot(t_pos, pos, label="Position (rᵧ)", color="mediumseagreen", linewidth=1.5)
+ax_pos.axhline(y_eq, color="black", linestyle="--", label="Equilibrium", alpha=0.7)
+ax_pos.plot(t_pos[turning_indices], pos[turning_indices], 'ko', markersize=4, label="Turning Points")
+ax_pos.set_title("Wheel Position vs Time with Identified Turning Points", fontsize=13, fontweight="bold")
+ax_pos.set_ylabel("Position (m)", fontsize=12)
+ax_pos.grid(True, linestyle="--", alpha=0.6)
+ax_pos.legend(loc="upper right")
+
+ax_amp.plot(n_values, amplitudes, 'bo', label="Calculated Amplitudes (Aₙ)")
+ax_amp.plot(n_values, fit_amplitudes, 'r-', linewidth=2, label=f"Linear Fit (Slope = {m_slope:.5f} m/peak)")
+ax_amp.set_title("Amplitude Decay Sequence (Constant Friction)", fontsize=13, fontweight="bold")
+ax_amp.set_ylabel("Amplitude |rᵧ - y_eq| (m)", fontsize=12)
+ax_amp.grid(True, linestyle="--", alpha=0.6)
+ax_amp.legend(loc="upper right")
+
+ax_res.scatter(n_values, residuals_cf, color="darkred", s=30, alpha=0.8, label="Residuals")
+ax_res.axhline(0, color="black", linestyle="--", linewidth=1.5)
+ax_res.set_title("Residuals of Linear Fit", fontsize=13, fontweight="bold")
+ax_res.set_xlabel("Peak Number (n)", fontsize=12)
+ax_res.set_ylabel("Residual Amplitude (m)", fontsize=12)
+ax_res.grid(True, linestyle="--", alpha=0.6)
+ax_res.legend(loc="upper right")
+
+plt.savefig(os.path.join(base_dir, "3.2_constant_friction_fit.png"), dpi=300)
 plt.show()
