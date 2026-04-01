@@ -9,7 +9,7 @@ Objective: " Your overall objective is to find the mass density of the string an
     •hung 150g from the string 
     •length from signal generator to pulley is 93.5cm
 | n |fmin (Hz) | fmax (Hz)| 
-| :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | 
 | 1| 8.09 | 8.11 |
 | 2| 15.7 | 16.0|
 | 3| 23.6 | 23.7|
@@ -25,16 +25,15 @@ Objective: " Your overall objective is to find the mass density of the string an
     • hung 100g off hanger
     • length in tension: 104cm
 
-| n | f (Hz)| fmin (Hz) | fmax (Hz)| uncertainty (Hz)|
-| :--- | :--- | :--- | :--- |:--- |
-| 1| | 26.8 |27 | |
-| 2| | 54.8 | 56| |
-| 3| | 82.5 |82.7 | |
-| 4| | 110.0 |110.5 | |
-| 5| | 137.1 | 137.7 | |
-| 6| | 145.7 | 145.9| |
+| n | fmin (Hz) | fmax (Hz)| 
+| :--- | :--- | :--- |
+| 1| 26.8 |27 |
+| 2| 54.8 | 56|
+| 3| 82.5 |82.7 |
+| 4| 110.0 |110.5 | 
+| 5| 137.1 | 137.7 | 
+| 6| 145.7 | 145.9| 
 could not retrieve datapoints beyond n=6 (seems like resonant frequency of the string)
-| 7| |  | | |
 
 # Experiment 2 - Fixed length + frequency, varying tension
     • total length was 121cm (must be between 1 and 2 m)
