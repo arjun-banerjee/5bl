@@ -33,7 +33,8 @@ Objective: " Your overall objective is to find the mass density of the string an
 | 4| 110.0 |110.5 | 
 | 5| 137.1 | 137.7 | 
 | 6| 145.7 | 145.9| 
-could not retrieve datapoints beyond n=6 (seems like resonant frequency of the string)
+
+    • could not retrieve datapoints beyond n=6 (seems like resonant frequency of the string)
 
 # Experiment 2 - Fixed length + frequency, varying tension
     • total length was 121cm (must be between 1 and 2 m)
