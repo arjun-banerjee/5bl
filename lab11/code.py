@@ -4,13 +4,11 @@ from scipy.optimize import curve_fit
 import warnings
 warnings.filterwarnings('ignore') # student doesn't want to see warnings
 
-# globals/setup
 g = 9.80
 mu_th = 13 / 1000 / 2.962 
-# plt.style.use('seaborn-v0_8-darkgrid') # student might forget this, but keeping it condensed
 print(f"Theory mu: {mu_th:.6f}")
 
-# ============================ EXP 1 ============================
+#exp1
 n1 = np.array([1, 2, 3, 4, 5, 6])
 f_min, f_max = np.array([8.09, 15.7, 23.6, 33.6, 40.95, 48.32]), np.array([8.11, 16.0, 23.7, 34.1, 41.05, 48.39])
 f1, df1 = (f_min + f_max) / 2, (f_max - f_min) / 2
@@ -28,7 +26,6 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 ax1.errorbar(n1, f1, yerr=df1, fmt='o', capsize=5, label='data'); ax1.plot(n1, s1*n1, 'r-', label=f'fit f={s1:.2f}n')
 ax1.set_title("Exp 1: Freq vs n"); ax1.set_ylabel("Freq (Hz)"); ax1.set_xlabel("n"); ax1.legend()
 
-# Residuals: Crosses AND explicit error bars
 psize1 = 50 + 200 * (df1 / df1.max())
 for i in range(len(n1)):
     # scatter for variable size cross
@@ -39,8 +36,7 @@ ax2.axhline(0, color='r', ls='--'); ax2.fill_between([0, 7], -1, 1, alpha=0.1, c
 ax2.set_title("Normalized Residuals (Exp 1)"); ax2.set_ylabel("sigma"); ax2.set_xlabel("n")
 plt.tight_layout(); plt.savefig('exp1_analysis.png'); plt.show()
 
-
-# ============================ EXP 2 ============================
+#exp1
 n2 = np.array([2, 3, 4, 5, 6, 7])
 m2 = np.array([397, 235, 160, 95, 65, 30]) / 1000
 T2, dT2 = m2 * g, m2 * 0.01 
@@ -59,7 +55,7 @@ ax4.set_title("Linearized: T*n^2 vs n"); ax4.set_ylabel("T*n^2"); ax4.set_xlabel
 plt.tight_layout(); plt.savefig('exp2_analysis.png'); plt.show()
 
 
-# ============================ EXP 3 ============================
+# exp3
 n3 = np.arange(1, 8)
 L_a = np.array([21.0, 40.5, 60.3, 79.5, 98.2, 117.7, 137.4]) / 100
 L_b = np.array([21.5, 40.0, 60.3, 80.0, 98.5, 117.8, 137.0]) / 100
@@ -76,7 +72,6 @@ fig, (ax5, ax6) = plt.subplots(1, 2, figsize=(12, 5))
 ax5.errorbar(n3, L3*100, yerr=dL3*100, fmt='o', color='purple', capsize=5); ax5.plot(n3, s3*n3*100, 'r-')
 ax5.set_title("Exp 3: Length vs n"); ax5.set_ylabel("Length (cm)"); ax5.set_xlabel("n")
 
-# Residuals: Crosses AND explicit error bars
 psize3 = 50 + 150 * (dL3 / dL3.max())
 for i in range(len(n3)):
     ax6.scatter(n3[i], norm_res3[i], s=psize3[i], marker='x', color='purple', alpha=0.7)
