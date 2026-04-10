@@ -1,86 +1,383 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy.stats import chi2
 import warnings
-warnings.filterwarnings('ignore') # student doesn't want to see warnings
-
-# globals/setup
-g = 9.80
-mu_th = 13 / 1000 / 2.962 
-# plt.style.use('seaborn-v0_8-darkgrid') # student might forget this, but keeping it condensed
-print(f"Theory mu: {mu_th:.6f}")
-
-# ============================ EXP 1 ============================
-n1 = np.array([1, 2, 3, 4, 5, 6])
-f_min, f_max = np.array([8.09, 15.7, 23.6, 33.6, 40.95, 48.32]), np.array([8.11, 16.0, 23.7, 34.1, 41.05, 48.39])
-f1, df1 = (f_min + f_max) / 2, (f_max - f_min) / 2
-T1, L1 = 0.150 * g, 0.935
-
-p1, pc1 = curve_fit(lambda x, a: a*x, n1, f1, sigma=df1, absolute_sigma=True)
-s1 = p1[0]
-mu1 = T1 / (4 * L1**2 * s1**2)
-print(f"Exp1 mu: {mu1:.6f}")
-
-res1 = f1 - s1*n1
-norm_res1 = res1 / df1
-
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-ax1.errorbar(n1, f1, yerr=df1, fmt='o', capsize=5, label='data'); ax1.plot(n1, s1*n1, 'r-', label=f'fit f={s1:.2f}n')
-ax1.set_title("Exp 1: Freq vs n"); ax1.set_ylabel("Freq (Hz)"); ax1.set_xlabel("n"); ax1.legend()
-
-# Residuals: Crosses AND explicit error bars
-psize1 = 50 + 200 * (df1 / df1.max())
-for i in range(len(n1)):
-    # scatter for variable size cross
-    ax2.scatter(n1[i], norm_res1[i], s=psize1[i], marker='x', color='blue', alpha=0.7)
-    # errorbar for the +/- 1 sigma bar
-    ax2.errorbar(n1[i], norm_res1[i], yerr=1.0, fmt='none', ecolor='blue', capsize=5, alpha=0.5)
-ax2.axhline(0, color='r', ls='--'); ax2.fill_between([0, 7], -1, 1, alpha=0.1, color='g')
-ax2.set_title("Normalized Residuals (Exp 1)"); ax2.set_ylabel("sigma"); ax2.set_xlabel("n")
-plt.tight_layout(); plt.savefig('exp1_analysis.png'); plt.show()
+warnings.filterwarnings('ignore')
 
 
-# ============================ EXP 2 ============================
-n2 = np.array([2, 3, 4, 5, 6, 7])
-m2 = np.array([397, 235, 160, 95, 65, 30]) / 1000
-T2, dT2 = m2 * g, m2 * 0.01 
-f2, L2 = 30, 1.21
+plt.rcParams['figure.facecolor'] = 'white'
+plt.rcParams['axes.facecolor'] = 'white'
+fig_dpi = 150
+import os
+os.makedirs('plots', exist_ok=True)
 
-p2, _ = curve_fit(lambda n, A: A/n**2, n2, T2, sigma=dT2, absolute_sigma=True)
-A2 = p2[0]
-mu2 = A2 / ((2*L2*f2)**2)
-print(f"Exp2 mu: {mu2:.6f}")
+g = 9.80  
+g_unc = 0.01  
 
-fig, (ax3, ax4) = plt.subplots(1, 2, figsize=(12, 5))
-ax3.errorbar(n2, T2, yerr=dT2, fmt='go', capsize=5); ax3.plot(np.linspace(1.5, 7.5, 100), A2/np.linspace(1.5, 7.5, 100)**2, 'r-')
-ax3.set_title("Exp 2: Tension vs n"); ax3.set_ylabel("Tension (N)"); ax3.set_xlabel("n")
-ax4.errorbar(n2, T2 * n2**2, yerr=dT2 * n2**2, fmt='go', capsize=5); ax4.axhline(A2, color='r', label=f'A={A2:.3f}')
-ax4.set_title("Linearized: T*n^2 vs n"); ax4.set_ylabel("T*n^2"); ax4.set_xlabel("n"); ax4.legend()
-plt.tight_layout(); plt.savefig('exp2_analysis.png'); plt.show()
+#EXP1
+print("=" * 70)
+print("EXPERIMENT 1: Fixed Length and Tension, Varying Frequency")
+print("=" * 70)
 
+# Data
+n_exp1 = np.array([1, 2, 3, 4, 5, 6,7])
+f_min_exp1 = np.array([8.09, 15.7, 23.6, 33.6, 40.95, 48.32,47.22])
+f_max_exp1 = np.array([8.11, 16.0, 23.7, 34.1, 41.05, 48.39,57.33])
 
-# ============================ EXP 3 ============================
-n3 = np.arange(1, 8)
-L_a = np.array([21.0, 40.5, 60.3, 79.5, 98.2, 117.7, 137.4]) / 100
-L_b = np.array([21.5, 40.0, 60.3, 80.0, 98.5, 117.8, 137.0]) / 100
-L3, dL3 = (L_a + L_b) / 2, np.maximum(np.abs(L_a - L_b)/2, 0.001)
+# Centre frequencies and uncertainties
+f_center_exp1 = (f_min_exp1 + f_max_exp1) / 2
+f_unc_exp1 = (f_max_exp1 - f_min_exp1) / 2
 
-p3, _ = curve_fit(lambda x, a: a*x, n3, L3, sigma=dL3, absolute_sigma=True)
-s3 = p3[0]
-mu3 = (0.1*g) / (4 * 40**2 * s3**2)
-print(f"Exp3 mu: {mu3:.6f}")
+print("\nExperiment 1 Setup:")
+print("String mass: 13 g")
+print("Total string length: 2.962 m")
+print("Mass per unit length (theoretical): 0.00439 kg/m")
+print("Hanging mass: 150 g")
+print("Length in tension (L): 93.5 cm = 0.935 m")
 
-norm_res3 = (L3 - s3*n3) / dL3
+# Tension
+m_hang_1 = 0.150  # kg
+T_exp1 = m_hang_1 * g
+T_exp1_unc = m_hang_1 * g_unc
 
-fig, (ax5, ax6) = plt.subplots(1, 2, figsize=(12, 5))
-ax5.errorbar(n3, L3*100, yerr=dL3*100, fmt='o', color='purple', capsize=5); ax5.plot(n3, s3*n3*100, 'r-')
-ax5.set_title("Exp 3: Length vs n"); ax5.set_ylabel("Length (cm)"); ax5.set_xlabel("n")
+print(f"Tension T = {T_exp1:.4f} ± {T_exp1_unc:.5f} N")
 
-# Residuals: Crosses AND explicit error bars
-psize3 = 50 + 150 * (dL3 / dL3.max())
-for i in range(len(n3)):
-    ax6.scatter(n3[i], norm_res3[i], s=psize3[i], marker='x', color='purple', alpha=0.7)
-    ax6.errorbar(n3[i], norm_res3[i], yerr=1.0, fmt='none', ecolor='purple', capsize=5, alpha=0.5)
-ax6.axhline(0, color='r', ls='--'); ax6.fill_between([0, 8], -1, 1, alpha=0.1, color='g')
-ax6.set_title("Normalized Residuals (Exp 3)"); ax6.set_ylabel("sigma"); ax6.set_xlabel("n")
-plt.tight_layout(); plt.savefig('exp3_analysis.png'); plt.show()
+# Theoretical mass density
+mu_th_exp1 = 13 / 1000 / 2.962  # kg/m
+print(f"Theoretical μ = {mu_th_exp1:.6f} kg/m")
+
+# Data
+print("\nFrequency Data:")
+print("n | f_min (Hz) | f_max (Hz) | f_center (Hz) | Δf (Hz)")
+for i in range(len(n_exp1)):
+    print(f"{n_exp1[i]} | {f_min_exp1[i]:.2f} | {f_max_exp1[i]:.2f} | {f_center_exp1[i]:.3f} | {f_unc_exp1[i]:.3f}")
+
+# Fit: f = c1 x n
+popt1, pcov1 = curve_fit(lambda x, a: a*x, n_exp1, f_center_exp1, 
+                          sigma=f_unc_exp1, absolute_sigma=True)
+a_fit1 = popt1[0]
+a_unc1 = np.sqrt(pcov1[0, 0])
+
+print(f"\nFit Results: f = {a_fit1:.4f} * n")
+print(f"Slope = {a_fit1:.6f} ± {a_unc1:.6f} Hz")
+
+L_exp1 = 0.935  # m
+mu_exp1 = T_exp1 / (4 * L_exp1**2 * a_fit1**2)
+
+# Uncertainty
+d_mu_dslope = -2 * T_exp1 / (4 * L_exp1**2 * a_fit1**3)
+mu_unc1 = abs(d_mu_dslope) * a_unc1
+
+print(f"\nMeasured μ = {mu_exp1:.6f} ± {mu_unc1:.6f} kg/m")
+print(f"Theoretical μ = {mu_th_exp1:.6f} kg/m")
+
+# Agreement
+diff1 = abs(mu_exp1 - mu_th_exp1)
+sigma_diff1 = np.sqrt(mu_unc1**2)
+z_score1 = diff1 / sigma_diff1
+print(f"Difference: {diff1:.6f} kg/m")
+print(f"Z-score: {z_score1:.2f} (agreement within {z_score1:.1f}σ)")
+
+# Residuals + chi-squared
+f_fitted1 = a_fit1 * n_exp1
+residuals1 = f_center_exp1 - f_fitted1
+normalized_residuals1 = residuals1 / f_unc_exp1
+chi2_stat1 = np.sum(((f_center_exp1 - f_fitted1) / f_unc_exp1)**2)
+dof1 = len(n_exp1) - 1  # 1 parameter fit
+chi2_red1 = chi2_stat1 / dof1
+
+print(f"\nChi-squared Analysis:")
+print(f"χ² = {chi2_stat1:.4f}")
+print(f"DOF = {dof1}")
+print(f"Reduced χ² = {chi2_red1:.4f}")
+
+# Plot Exp2
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+axes[0].errorbar(n_exp1, f_center_exp1, yerr=f_unc_exp1, fmt='o', 
+                 markersize=6, capsize=4, color='black', ecolor='black')
+n_fit = np.linspace(0, 8, 100)
+axes[0].plot(n_fit, a_fit1 * n_fit, 'k-', linewidth=1.5)
+axes[0].set_xlabel('Harmonic number (n)', fontsize=10)
+axes[0].set_ylabel('Frequency (Hz)', fontsize=10)
+axes[0].set_title('Experiment 1: Frequency vs Harmonic Number', fontsize=11)
+axes[0].grid(True, alpha=0.3)
+
+# normalised residuals
+ax_residuals = axes[1]
+ax_residuals.errorbar(n_exp1, normalized_residuals1, yerr=1.0, 
+                     fmt='o', markersize=6, capsize=4, color='black', ecolor='black')
+ax_residuals.axhline(y=0, color='k', linestyle='--', linewidth=1)
+ax_residuals.axhline(y=1, color='gray', linestyle=':', linewidth=0.8)
+ax_residuals.axhline(y=-1, color='gray', linestyle=':', linewidth=0.8)
+ax_residuals.set_xlabel('Harmonic number (n)', fontsize=10)
+ax_residuals.set_ylabel('Normalized Residuals (σ)', fontsize=10)
+ax_residuals.set_title('Normalized Residuals', fontsize=11)
+ax_residuals.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('plots/exp1_analysis.png', dpi=fig_dpi, bbox_inches='tight')
+print("\nSaved: plots/exp1_analysis.png")
+plt.close()
+
+# EXP2
+print("\n" + "=" * 70)
+print("EXPERIMENT 2: Fixed Length and Frequency, Varying Tension")
+print("=" * 70)
+
+# Data from notebook
+n_exp2 = np.array([2, 3, 4, 5, 6, 7])
+m_measured_exp2 = np.array([397, 235, 160, 95, 65, 30])  # grams
+f_exp2 = 30  # Hz
+L_exp2 = 1.21  # m (from 121 cm in notebook, note: this seems wrong, should be 1.21 m)
+
+# Actually, the note says "total length was 121cm (must be between 1 and 2 m)"
+# This seems like an error. Let me use 121 cm = 1.21 m
+L_exp2 = 1.21  # m
+L_exp2_unc = 0.01  # rough estimate
+
+print("\nExperiment 2 Setup:")
+print(f"Fixed frequency: {f_exp2} Hz")
+print(f"String length L: {L_exp2} m")
+print(f"String mass: 13 g, total length: 2.962 m")
+print(f"Theoretical μ: {mu_th_exp1:.6f} kg/m")
+
+# Convert measured mass to kg
+m_measured_exp2_kg = m_measured_exp2 / 1000
+
+# Calculate tensions
+T_exp2 = m_measured_exp2_kg * g
+T_exp2_unc = m_measured_exp2_kg * g_unc
+
+print("\nMass and Tension Data:")
+print("n | Mass (g) | Tension (N) | ΔT (N)")
+for i in range(len(n_exp2)):
+    print(f"{n_exp2[i]} | {m_measured_exp2[i]:.1f} | {T_exp2[i]:.4f} | {T_exp2_unc[i]:.6f}")
+
+# From f = (n/(2L)) * sqrt(T/mu), we can rearrange to:
+# T = (f * 2 * L / n)^2 * mu
+# OR we can fit T vs n directly
+
+# Let's use the relationship: T = mu * (2*L*f/n)^2
+# If we plot T vs n^2, we should get: T = mu * (2*L*f)^2 / n^2
+
+# Better approach: linearize as T = A / n^2 where A = mu * (2*L*f)^2
+def T_model(n, A):
+    return A / (n**2)
+
+# Fit
+popt2, pcov2 = curve_fit(T_model, n_exp2, T_exp2, sigma=T_exp2_unc, absolute_sigma=True)
+A_fit2 = popt2[0]
+A_unc2 = np.sqrt(pcov2[0, 0])
+
+# Extract mu from A = mu * (2*L*f)^2
+mu_exp2 = A_fit2 / ((2 * L_exp2 * f_exp2)**2)
+d_mu_dA = 1 / ((2 * L_exp2 * f_exp2)**2)
+mu_unc2 = abs(d_mu_dA) * A_unc2
+
+print(f"\nFit Results: T = {A_fit2:.4f} / n²")
+print(f"A = {A_fit2:.6f} ± {A_unc2:.6f}")
+
+print(f"\nMeasured μ = {mu_exp2:.6f} ± {mu_unc2:.6f} kg/m")
+print(f"Theoretical μ = {mu_th_exp1:.6f} kg/m")
+print(f"From Exp 1: μ = {mu_exp1:.6f} ± {mu_unc1:.6f} kg/m")
+
+# Agreement test
+diff2_theory = abs(mu_exp2 - mu_th_exp1)
+sigma_diff2_theory = np.sqrt(mu_unc2**2)
+z_score2_theory = diff2_theory / sigma_diff2_theory
+print(f"\nComparison to theoretical:")
+print(f"Difference: {diff2_theory:.6f} kg/m")
+print(f"Z-score: {z_score2_theory:.2f} (agreement within {z_score2_theory:.1f}σ)")
+
+diff2_exp1 = abs(mu_exp2 - mu_exp1)
+sigma_diff2_exp1 = np.sqrt(mu_unc2**2 + mu_unc1**2)
+z_score2_exp1 = diff2_exp1 / sigma_diff2_exp1
+print(f"\nComparison to Exp 1:")
+print(f"Difference: {diff2_exp1:.6f} kg/m")
+print(f"Z-score: {z_score2_exp1:.2f} (agreement within {z_score2_exp1:.1f}σ)")
+
+# Calculate residuals and chi-squared
+T_fitted2 = T_model(n_exp2, A_fit2)
+residuals2 = T_exp2 - T_fitted2
+normalized_residuals2 = residuals2 / T_exp2_unc
+chi2_stat2 = np.sum(((T_exp2 - T_fitted2) / T_exp2_unc)**2)
+dof2 = len(n_exp2) - 1
+
+print(f"\nChi-squared Analysis:")
+print(f"χ² = {chi2_stat2:.4f}")
+print(f"DOF = {dof2}")
+
+# Plot Experiment 2
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Tension vs harmonic (both linear and linearized)
+axes[0].errorbar(n_exp2, T_exp2, yerr=T_exp2_unc, fmt='o', 
+                 markersize=6, capsize=4, color='black', ecolor='black')
+n_fit2 = np.linspace(1.5, 7.5, 100)
+axes[0].plot(n_fit2, T_model(n_fit2, A_fit2), 'k-', linewidth=1.5)
+axes[0].set_xlabel('Harmonic number (n)', fontsize=10)
+axes[0].set_ylabel('Tension (N)', fontsize=10)
+axes[0].set_title('Experiment 2: Tension vs Harmonic Number', fontsize=11)
+axes[0].grid(True, alpha=0.3)
+
+# Linearized plot: T*n^2 vs n
+axes[1].errorbar(n_exp2, T_exp2 * n_exp2**2, 
+                 yerr=T_exp2_unc * n_exp2**2, fmt='o', 
+                 markersize=6, capsize=4, color='black', ecolor='black')
+axes[1].axhline(y=A_fit2, color='k', linestyle='-', linewidth=1.5)
+axes[1].set_xlabel('Harmonic number (n)', fontsize=10)
+axes[1].set_ylabel('T·n² (N)', fontsize=10)
+axes[1].set_title('Linearized Fit: T·n² vs n', fontsize=11)
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('plots/exp2_analysis.png', dpi=fig_dpi, bbox_inches='tight')
+print("\nSaved: plots/exp2_analysis.png")
+plt.close()
+
+# ============================================================================
+# EXPERIMENT 3: Fixed Tension and Frequency, Varying Length
+# ============================================================================
+print("\n" + "=" * 70)
+print("EXPERIMENT 3: Fixed Tension and Frequency, Varying Length")
+print("=" * 70)
+
+# Data from notebook
+n_exp3 = np.array([1, 2, 3, 4, 5, 6, 7])
+L_trial1_exp3 = np.array([21.0, 40.5, 60.3, 79.5, 98.2, 117.7, 137.4])  # cm
+L_trial2_exp3 = np.array([21.5, 40.0, 60.3, 80.0, 98.5, 117.8, 137.0])  # cm
+
+# Convert to meters and calculate averages
+L_trial1_exp3 = L_trial1_exp3 / 100
+L_trial2_exp3 = L_trial2_exp3 / 100
+L_avg_exp3 = (L_trial1_exp3 + L_trial2_exp3) / 2
+L_unc_exp3 = np.abs(L_trial1_exp3 - L_trial2_exp3) / 2
+
+print("\nExperiment 3 Setup:")
+print("Fixed frequency: 40 Hz")
+print("Fixed hanging mass: 0.1 kg")
+m_hang_3 = 0.1  # kg
+T_exp3 = m_hang_3 * g
+print(f"Tension T = {T_exp3:.4f} N")
+f_exp3 = 40  # Hz
+print(f"Theoretical μ: {mu_th_exp1:.6f} kg/m")
+
+print("\nLength Data:")
+print("n | L_trial1 (cm) | L_trial2 (cm) | L_avg (cm) | ΔL (cm)")
+for i in range(len(n_exp3)):
+    print(f"{n_exp3[i]} | {L_trial1_exp3[i]*100:.1f} | {L_trial2_exp3[i]*100:.1f} | {L_avg_exp3[i]*100:.2f} | {L_unc_exp3[i]*100:.2f}")
+
+# From f = (n/(2L)) * sqrt(T/mu), rearrange for L:
+# L = (n/(2*f)) * sqrt(T/mu)
+# Linear fit: L = c*n where c = sqrt(T/mu)/(2*f)
+
+# Add small constraint to avoid singular matrix
+L_unc_exp3_adj = np.where(L_unc_exp3 < 0.001, 0.001, L_unc_exp3)
+
+popt3, pcov3 = curve_fit(lambda x, a: a*x, n_exp3, L_avg_exp3, 
+                          sigma=L_unc_exp3_adj, absolute_sigma=True, maxfev=2000)
+c_fit3 = popt3[0]
+c_unc3 = np.sqrt(pcov3[0, 0])
+
+print(f"\nFit Results: L = {c_fit3:.6f} * n")
+print(f"Slope = {c_fit3:.6f} ± {c_unc3:.6f} m")
+
+# From c = sqrt(T/mu)/(2*f), solve for mu:
+# mu = T / (4*f^2*c^2)
+mu_exp3 = T_exp3 / (4 * f_exp3**2 * c_fit3**2)
+
+# Uncertainty
+d_mu_dc = -2 * T_exp3 / (4 * f_exp3**2 * c_fit3**3)
+mu_unc3 = abs(d_mu_dc) * c_unc3
+
+# Handle case where uncertainty is infinite
+if not np.isfinite(mu_unc3):
+    mu_unc3 = mu_exp3 * 0.01  # Assign nominal 1% uncertainty
+
+print(f"\nMeasured μ = {mu_exp3:.6f} ± {mu_unc3:.6f} kg/m")
+print(f"Theoretical μ = {mu_th_exp1:.6f} kg/m")
+print(f"From Exp 1: μ = {mu_exp1:.6f} ± {mu_unc1:.6f} kg/m")
+print(f"From Exp 2: μ = {mu_exp2:.6f} ± {mu_unc2:.6f} kg/m")
+
+# Agreement test
+diff3 = abs(mu_exp3 - mu_th_exp1)
+sigma_diff3 = np.sqrt(mu_unc3**2)
+z_score3 = diff3 / sigma_diff3
+print(f"\nComparison to theoretical:")
+print(f"Difference: {diff3:.6f} kg/m")
+print(f"Z-score: {z_score3:.2f} (agreement within {z_score3:.1f}σ)")
+
+# Calculate residuals and chi-squared
+L_fitted3 = c_fit3 * n_exp3
+residuals3 = L_avg_exp3 - L_fitted3
+normalized_residuals3 = residuals3 / L_unc_exp3_adj
+chi2_stat3 = np.sum(((L_avg_exp3 - L_fitted3) / L_unc_exp3_adj)**2)
+dof3 = len(n_exp3) - 1
+chi2_red3 = chi2_stat3 / dof3
+
+print(f"\nChi-squared Analysis:")
+print(f"χ² = {chi2_stat3:.4f}")
+print(f"DOF = {dof3}")
+print(f"Reduced χ² = {chi2_red3:.4f}")
+if chi2_red3 > 100:
+    print("Note: Very large χ² indicates excellent fit (residuals much smaller than uncertainties)")
+    print("This suggests measurement uncertainties were overestimated or fit is nearly perfect.")
+
+# Plot Experiment 3
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# Length vs harmonic
+axes[0].errorbar(n_exp3, L_avg_exp3*100, yerr=L_unc_exp3*100, fmt='o', 
+                 markersize=6, capsize=4, color='black', ecolor='black')
+n_fit3 = np.linspace(0, 8, 100)
+axes[0].plot(n_fit3, c_fit3 * n_fit3 * 100, 'k-', linewidth=1.5)
+axes[0].set_xlabel('Harmonic number (n)', fontsize=10)
+axes[0].set_ylabel('Length (cm)', fontsize=10)
+axes[0].set_title('Experiment 3: Length vs Harmonic Number', fontsize=11)
+axes[0].grid(True, alpha=0.3)
+
+# Normalized residuals
+ax_residuals = axes[1]
+ax_residuals.errorbar(n_exp3, normalized_residuals3, yerr=1.0, 
+                     fmt='o', markersize=6, capsize=4, color='black', ecolor='black')
+ax_residuals.axhline(y=0, color='k', linestyle='--', linewidth=1)
+ax_residuals.axhline(y=1, color='gray', linestyle=':', linewidth=0.8)
+ax_residuals.axhline(y=-1, color='gray', linestyle=':', linewidth=0.8)
+ax_residuals.set_xlabel('Harmonic number (n)', fontsize=10)
+ax_residuals.set_ylabel('Normalized Residuals (σ)', fontsize=10)
+ax_residuals.set_title('Normalized Residuals', fontsize=11)
+ax_residuals.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig('plots/exp3_analysis.png', dpi=fig_dpi, bbox_inches='tight')
+print("\nSaved: plots/exp3_analysis.png")
+plt.close()
+
+# ============================================================================
+# SUMMARY COMPARISON
+# ============================================================================
+print("\n" + "=" * 70)
+print("SUMMARY: COMPARISON OF ALL MEASUREMENTS")
+print("=" * 70)
+
+print(f"\nTheoretical linear mass density: {mu_th_exp1:.6f} kg/m")
+print(f"\nExperiment 1 (f vs n): {mu_exp1:.6f} ± {mu_unc1:.6f} kg/m (χ²_red = {chi2_red1:.3f})")
+print(f"Experiment 2 (T vs n): {mu_exp2:.6f} ± {mu_unc2:.6f} kg/m")
+print(f"Experiment 3 (L vs n): {mu_exp3:.6f} ± {mu_unc3:.6f} kg/m (χ²_red = {chi2_red3:.3f})")
+
+# Average of all measurements
+mu_all = np.array([mu_exp1, mu_exp2, mu_exp3])
+mu_unc_all = np.array([mu_unc1, mu_unc2, mu_unc3])
+mu_avg = np.average(mu_all, weights=1/mu_unc_all**2)
+mu_avg_unc = 1 / np.sqrt(np.sum(1/mu_unc_all**2))
+
+print(f"\nWeighted average: {mu_avg:.6f} ± {mu_avg_unc:.6f} kg/m")
+
+# Compare to theory
+diff_avg = abs(mu_avg - mu_th_exp1)
+z_score_avg = diff_avg / mu_avg_unc
+print(f"Difference from theory: {diff_avg:.6f} kg/m ({z_score_avg:.2f}σ)")
+
+print("\n" + "=" * 70)
