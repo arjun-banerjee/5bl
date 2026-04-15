@@ -38,19 +38,27 @@ This experimental procedure should yield the following data table:
 
 ### Control, 0m
 - 1st hearted video
-- Start at 7s
+- 7s - 37s
 
 ### Control, 1m
+- 4th hearted video
+- 1 min 4s - 1 min 34s
 
 ### Control, 2.5m
+- 4th hearted video
+- 19s - 49s
 
 ### Aluminium foil, 0cm
 - 2nd hearted video 
-- Start at 1m 11s
+- 1min 11s - 1m min 41s
 
 ### Aluminium foil, 1m
+- 3rd hearted video
+- 2min 9s to 2min 39s
 
 ### Aluminium foil, 2.5m
+-3rd hearted video
+-4min to 4 min 30
 
 ### Copper mesh, 0m
 
