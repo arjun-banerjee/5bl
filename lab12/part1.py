@@ -1,8 +1,3 @@
-"""
-Lab 12: Magnetism and Faraday's Law - Data Processing and Analysis
-Python script to process IOLab data and generate plots for all three experiments
-"""
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
